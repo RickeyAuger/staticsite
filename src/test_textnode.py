@@ -19,12 +19,12 @@ class TestTextNode(unittest.TestCase):
         node2 = TextNode("This is a text node", TextType.BOLD, None)
         self.assertEqual(node, node2)
 
-    def test_not_eq_with_diff_url(self):
+    def test_eq_with_diff_url(self):
         node = TextNode("This is a text node", TextType.BOLD, "https://www.boots.dev")
         node2 = TextNode("This is a text node", TextType.BOLD, "https://www.boot.dev")
         self.assertNotEqual(node, node2)
 
-    def test_not_eq_with_diff_text_type(self):
+    def test_eq_with_diff_text_type(self):
         node = TextNode("This is a text node", TextType.BOLD, "https://www.boots.dev")
         node2 = TextNode("This is a text node", TextType.ITALIC, "https://www.boot.dev")
         self.assertNotEqual(node, node2)

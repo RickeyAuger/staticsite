@@ -2,7 +2,8 @@ import unittest
 
 from htmlnode import HTMLNode
 
-#tag value children props
+
+
 class TestHTMLNode(unittest.TestCase):
     def test_no_props(self):
         node = HTMLNode("p","Hello, world!")
@@ -16,6 +17,8 @@ class TestHTMLNode(unittest.TestCase):
         node = HTMLNode("a", "Click me!", props={"href": "https://example.com", "target": "_blank"})
         expected = ' href="https://example.com" target="_blank"'
         self.assertEqual(node.props_to_html(), expected)
+
+
 
     
     
