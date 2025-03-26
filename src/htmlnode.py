@@ -45,6 +45,18 @@ class LeafNode(HTMLNode):
        
         return f"<{self.tag}{props_html}>{self.value}</{self.tag}>"
     
+    def __eq__(self, other):
+        
+        if not isinstance(other, LeafNode):
+            return False
+
+        
+        return (
+            self.tag == other.tag and
+            self.value == other.value and
+            self.props == other.props)
+    
+
 class ParentNode(HTMLNode):
     def __init__(self, tag, children, props=None):
         if not tag:
