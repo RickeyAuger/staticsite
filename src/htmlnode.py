@@ -52,6 +52,10 @@ class ParentNode(HTMLNode):
         if not children:
             raise ValueError("All ParentNodes must have children")
         
+        for child in children:
+            if not isinstance(child, HTMLNode):
+                raise TypeError("All children of ParentNode must be instances of HTMLNode")
+        
         super().__init__(tag=tag, value=None, children=children, props=props)
 
     def to_html(self):
@@ -60,13 +64,13 @@ class ParentNode(HTMLNode):
         if self.children is None:
             raise ValueError("All ParentNodes must have children")
         
-        
+        props_html = self.props_to_html()
         html_content = ""
 
         for child in self.children:
             html_content += child.to_html()
 
-        return f"<{self.tag}>{html_content}</{self.tag}>"
+        return f"<{self.tag}{props_html}>{html_content}</{self.tag}>"
 
 
 
