@@ -27,8 +27,8 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
             if before_text:
                 new_nodes.append(TextNode(before_text, TextType.TEXT))
 
-            if special_text:
-                new_nodes.append(TextNode(special_text, text_type))
+            
+            new_nodes.append(TextNode(special_text, text_type))
 
             remaining_text = after_text
         
