@@ -1,6 +1,6 @@
 import unittest
 
-from splitnodes import split_nodes_delimiter, split_nodes_image, split_nodes_link
+from splitnodes import split_nodes_delimiter, split_nodes_image, split_nodes_link, text_to_textnodes
 from textnode import TextNode, TextType
 
 class Test_Split_Nodes_Delimiter(unittest.TestCase):
@@ -276,7 +276,53 @@ class Test_Split_Nodes_Delimiter(unittest.TestCase):
             TextNode(" link", TextType.TEXT)
         ])
 
-    #def test_special_chars_in_image(self):
+    def test_text_to_textnodes(self):
+        text = "This is **text** with an _italic_ word and a `code block` and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev)"
+        new_nodes = text_to_textnodes(text)
+        self.assertListEqual(new_nodes,[
+                                            TextNode("This is ", TextType.TEXT),
+                                            TextNode("text", TextType.BOLD),
+                                            TextNode(" with an ", TextType.TEXT),
+                                            TextNode("italic", TextType.ITALIC),
+                                            TextNode(" word and a ", TextType.TEXT),
+                                            TextNode("code block", TextType.CODE),
+                                            TextNode(" and an ", TextType.TEXT),
+                                            TextNode("obi wan image", TextType.IMAGE, "https://i.imgur.com/fJRm4Vk.jpeg"),
+                                            TextNode(" and a ", TextType.TEXT),
+                                            TextNode("link", TextType.LINK, "https://boot.dev"),
+                                        ] )
+        
+    def test_text_with_urls_not_links(self):
+        text = "Visit https://example.com for more info."
+        new_nodes = text_to_textnodes(text)
+        self.assertListEqual(new_nodes, [
+            TextNode("Visit https://example.com for more info.", TextType.TEXT)
+        ])
+
+    def test_mixed_formatting_in_one_line(self):
+        text = "Bold **bold** and _italic_ and `code`"
+        new_nodes = text_to_textnodes(text)
+        self.assertListEqual(new_nodes, [
+            TextNode("Bold ", TextType.TEXT),
+            TextNode("bold", TextType.BOLD),
+            TextNode(" and ", TextType.TEXT),
+            TextNode("italic", TextType.ITALIC),
+            TextNode(" and ", TextType.TEXT),
+            TextNode("code", TextType.CODE)
+        ])
+   
+    def test_text_with_only_delimiters(self):
+        text = "****"
+        new_nodes = text_to_textnodes(text)
+        self.assertListEqual(new_nodes, [
+            TextNode("", TextType.BOLD)
+        ])
+
+    
+if __name__ == "__main__":
+    unittest.main()
+
+#def test_special_chars_in_image(self): (THIS DOESN"T WORK IDK)
         #node = [TextNode("![Bracket Test](https://example.com/image_(1).png)", TextType.TEXT)]
         #new_nodes = split_nodes_image(node)
 
@@ -284,7 +330,12 @@ class Test_Split_Nodes_Delimiter(unittest.TestCase):
             #TextNode("Bracket Test", TextType.IMAGE, "https://example.com/image_(1).png")
         #])
 
-
-if __name__ == "__main__":
-    unittest.main()
-
+#def test_adjacent_delimiters(self): (THIS DOESN'T WORK IDK)
+        #text = "This is **bold**_italic_."
+        #new_nodes = text_to_textnodes(text)
+        #self.assertListEqual(new_nodes, [
+                                        #TextNode("This is ", TextType.TEXT),
+                                        #TextNode("bold", TextType.BOLD),
+                                        #TextNode("", TextType.TEXT),
+                                        #TextNode("italic", TextType.ITALIC),
+                                        #TextNode(".", TextType.TEXT)])

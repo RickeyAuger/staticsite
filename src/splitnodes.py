@@ -28,9 +28,13 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
 
             if before_text:
                 new_nodes.append(TextNode(before_text, TextType.TEXT))
-
+            
             
             new_nodes.append(TextNode(special_text, text_type))
+
+            
+            
+           
 
             remaining_text = after_text
         
@@ -131,3 +135,11 @@ def split_nodes_link(old_nodes):
     return new_nodes
 
 
+def text_to_textnodes(text):
+    nodes = [TextNode(text, TextType.TEXT)]
+    nodes = split_nodes_image(nodes)
+    nodes = split_nodes_link(nodes)
+    nodes = split_nodes_delimiter(nodes, "`", TextType.CODE)
+    nodes = split_nodes_delimiter(nodes, "**", TextType.BOLD)
+    nodes = split_nodes_delimiter(nodes, "_", TextType.ITALIC)
+    return nodes
