@@ -1,6 +1,7 @@
 from blocktype import block_to_block_type, BlockType
 from htmlnode import HTMLNode, ParentNode, LeafNode
 from textnode import TextNode, TextType, text_node_to_html_node
+from splitnodes import text_to_textnodes
 
 
 def markdown_to_blocks(markdown):
@@ -24,6 +25,7 @@ def markdown_to_blocks(markdown):
     return cleaned_blocks
 
 
+
 def markdown_to_html_node(markdown):
     cleaned_blocks = markdown_to_blocks(markdown)
     parent_node = HTMLNode("div", None, [], None)
@@ -32,23 +34,25 @@ def markdown_to_html_node(markdown):
         block_type = block_to_block_type(block)
         
         if block_type == BlockType.PARAGRAPH:
-            html_nodes = text_to_children(block)
-            paragraph = HTMLNode(tag= "p", children=html_nodes)
+            paragraph = paragraph_to_html_node(block)
             parent_node.children.append(paragraph)
         
-        if block_type == BlockType.HEADING:
-            HTMLNode("h1",)
+        elif block_type == BlockType.HEADING:
+            heading = heading_to_html_node(block)
+            parent_node.children.append(heading)
         
-        if block_type == BlockType.CODE:
-            HTMLNode("code",)
+        elif block_type == BlockType.CODE:
+            code = code_to_html_node(block)
+            parent_node.children.append(code)
         
-        if block_type == BlockType.QUOTE:
-            HTMLNode("blockquote",)
+        elif block_type == BlockType.QUOTE:
+            quotes = quote_to_html_node(block)
+            parent_node.children.append(quotes)
         
-        if block_type == BlockType.UNORDERED_LIST:
+        elif block_type == BlockType.UNORDERED_LIST:
             HTMLNode("ul",)
         
-        if block_type == BlockType.ORDERED_LIST:
+        elif block_type == BlockType.ORDERED_LIST:
             HTMLNode("ol",)
     
     return parent_node
@@ -60,9 +64,68 @@ def text_to_children(text):
     text_nodes = text_to_textnodes(text)
     html_nodes = [text_node_to_html_node(node) for node in text_nodes]
     return html_nodes
+
+
+
+def paragraph_to_html_node(block):
+    html_nodes = text_to_children(block)
+    return HTMLNode(tag= "p", children=html_nodes)
+   
+
+
+def quote_to_html_node(block):
+    lines = block.split("\n")
+    
+    cleaned_lines = []
+    
+    for line in lines:
+        
+        if line.startswith(">"):
+            cleaned_line = line[1:].strip()
+            cleaned_lines.append(cleaned_line)
+
+        else:
+            cleaned_lines.append(line)
+
+    cleaned_block = " ".join(cleaned_lines)
+    
+    html_nodes = text_to_children(cleaned_block)
+    
+    return HTMLNode(tag="blockquote", children=html_nodes)
+
+
+def heading_to_html_node(block):
+    count = 0
+    
+    for char in block:
+        if char == "#":
+            count += 1
+    
+    cleaned_text = block[count:].strip()
+    
+    html_nodes = text_to_children(cleaned_text)
+    
+    return HTMLNode(tag=f"h{count}",children=html_nodes)
+
+
+def code_to_html_node(block):
+    code_text = block.split("```")
+    
+    text_node = TextNode(code_text[1], TextType.TEXT)
+    
+    code_node = text_node_to_html_node(text_node)
+
+    return HTMLNode("pre", children = [code_node])
+    
     
 
 
+
+def unorded_list_to_html_node(block):
+
+
+
+def ordered_list_to_html_node(block):
 
 
         
