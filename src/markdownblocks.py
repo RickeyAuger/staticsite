@@ -29,36 +29,46 @@ def markdown_to_blocks(markdown):
 
 def markdown_to_html_node(markdown):
     cleaned_blocks = markdown_to_blocks(markdown)
-    parent_node = HTMLNode("div", None, [], None)
-    
+
+    if not cleaned_blocks:
+        return None
+
+    children = []
+    is_code_block = False
+    code_block_lines = []
+
     for block in cleaned_blocks:
         block_type = block_to_block_type(block)
+
         
         if block_type == BlockType.PARAGRAPH:
             paragraph = paragraph_to_html_node(block)
-            parent_node.children.append(paragraph)
-        
+            children.append(paragraph)
+
         elif block_type == BlockType.HEADING:
             heading = heading_to_html_node(block)
-            parent_node.children.append(heading)
-        
+            children.append(heading)
+
         elif block_type == BlockType.CODE:
             code = code_to_html_node(block)
-            parent_node.children.append(code)
-        
+            children.append(code)
+
         elif block_type == BlockType.QUOTE:
             quotes = quote_to_html_node(block)
-            parent_node.children.append(quotes)
-        
+            children.append(quotes)
+
         elif block_type == BlockType.UNORDERED_LIST:
             unordered_list = unordered_list_to_html_node(block)
-            parent_node.children.append(unordered_list)
-        
+            children.append(unordered_list)
+
         elif block_type == BlockType.ORDERED_LIST:
             ordered_list = ordered_list_to_html_node(block)
-            parent_node.children.append(ordered_list)
-    
+            children.append(ordered_list)
+
+    parent_node = ParentNode(tag="div", children=children)
     return parent_node
+        
+        
 
 
 
@@ -71,8 +81,9 @@ def text_to_children(text):
 
 
 def paragraph_to_html_node(block):
-    html_nodes = text_to_children(block)
-    return HTMLNode(tag= "p", children=html_nodes)
+    paragraph_text = " ".join(line.strip() for line in block.split("\n"))
+    html_nodes = text_to_children(paragraph_text)
+    return ParentNode(tag= "p", children=html_nodes)
    
 
 
@@ -94,33 +105,39 @@ def quote_to_html_node(block):
     
     html_nodes = text_to_children(cleaned_block)
     
-    return HTMLNode(tag="blockquote", children=html_nodes)
+    return ParentNode(tag="blockquote", children=html_nodes)
 
 
 def heading_to_html_node(block):
-    count = 0
+    match = re.match(r"^(#+)\s+(.*)", block)
     
-    for char in block:
-        if char == "#":
-            count += 1
+    if not match or not match.group(2).strip():
+        raise ValueError("Invalid heading format")
     
-    cleaned_text = block[count:].strip()
+    count = len(match.group(1))  
+    cleaned_text = match.group(2).strip() 
     
     html_nodes = text_to_children(cleaned_text)
     
-    return HTMLNode(tag=f"h{count}",children=html_nodes)
+    return ParentNode(tag=f"h{count}", children=html_nodes)
+
 
 
 def code_to_html_node(block):
-    code_text = block.split("```")[1]
+    if "```" in block:
+        code_text = block.strip("`")[1].strip()
+        
+        text_node = TextNode(code_text, TextType.TEXT)
     
-    text_node = TextNode(code_text, TextType.TEXT)
-    
-    html_text_node = text_node_to_html_node(text_node)
+        html_text_node = text_node_to_html_node(text_node)
 
-    code_node = HTMLNode(tag="code", children=[html_text_node])
+        code_node = ParentNode(tag="code", children=[html_text_node])
+        
+        return ParentNode("pre", children = [code_node])
     
-    return HTMLNode("pre", children = [code_node])
+    else:
+        raise ValueError("invalid code block!")
+   
 
 
     
@@ -138,9 +155,9 @@ def unordered_list_to_html_node(block):
         if line.startswith("* "):
             cleaned_line = line[2:].strip()
             li_children = text_to_children(cleaned_line)
-            line_html_nodes.append(HTMLNode(tag="li", children=li_children))
+            line_html_nodes.append(ParentNode(tag="li", children=li_children))
         
-    return HTMLNode(tag="ul", children=line_html_nodes)
+    return ParentNode(tag="ul", children=line_html_nodes)
 
 
 
@@ -154,9 +171,9 @@ def ordered_list_to_html_node(block):
         if match:
             cleaned_line =line[match.end():].strip()
             li_children = text_to_children(cleaned_line)
-            line_html_nodes.append(HTMLNode(tag="li", children=li_children))
+            line_html_nodes.append(ParentNode(tag="li", children=li_children))
         
-    return HTMLNode(tag="ol", children=line_html_nodes)
+    return ParentNode(tag="ol", children=line_html_nodes)
 
         
 

@@ -77,12 +77,14 @@ class ParentNode(HTMLNode):
             raise ValueError("All ParentNodes must have children")
         
         props_html = self.props_to_html()
-        html_content = ""
-
-        for child in self.children:
-            html_content += child.to_html()
-
-        return f"<{self.tag}{props_html}>{html_content}</{self.tag}>"
+        
+        children_html = "".join(child.to_html() for child in self.children)
+        
+        if self.tag == "code":
+            return f"<{self.tag}{props_html}>{children_html}\n</{self.tag}>"
+      
+     
+        return f"<{self.tag}{props_html}>{children_html}</{self.tag}>"
 
 
 
