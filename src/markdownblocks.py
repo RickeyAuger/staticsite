@@ -2,6 +2,7 @@ from blocktype import block_to_block_type, BlockType
 from htmlnode import HTMLNode, ParentNode, LeafNode
 from textnode import TextNode, TextType, text_node_to_html_node
 from splitnodes import text_to_textnodes
+import re
 
 
 def markdown_to_blocks(markdown):
@@ -50,10 +51,12 @@ def markdown_to_html_node(markdown):
             parent_node.children.append(quotes)
         
         elif block_type == BlockType.UNORDERED_LIST:
-            HTMLNode("ul",)
+            unordered_list = unordered_list_to_html_node(block)
+            parent_node.children.append(unordered_list)
         
         elif block_type == BlockType.ORDERED_LIST:
-            HTMLNode("ol",)
+            ordered_list = ordered_list_to_html_node(block)
+            parent_node.children.append(ordered_list)
     
     return parent_node
 
@@ -109,24 +112,51 @@ def heading_to_html_node(block):
 
 
 def code_to_html_node(block):
-    code_text = block.split("```")
+    code_text = block.split("```")[1]
     
-    text_node = TextNode(code_text[1], TextType.TEXT)
+    text_node = TextNode(code_text, TextType.TEXT)
     
-    code_node = text_node_to_html_node(text_node)
+    html_text_node = text_node_to_html_node(text_node)
 
+    code_node = HTMLNode(tag="code", children=[html_text_node])
+    
     return HTMLNode("pre", children = [code_node])
+
+
     
-    
 
 
 
-def unorded_list_to_html_node(block):
+def unordered_list_to_html_node(block):
+    lines = block.split("\n")
+    line_html_nodes = []
+
+    for line in lines:
+        if not line.strip():
+            continue
+        
+        if line.startswith("* "):
+            cleaned_line = line[2:].strip()
+            li_children = text_to_children(cleaned_line)
+            line_html_nodes.append(HTMLNode(tag="li", children=li_children))
+        
+    return HTMLNode(tag="ul", children=line_html_nodes)
 
 
 
 def ordered_list_to_html_node(block):
+    lines = block.split("\n")
+    line_html_nodes = []
 
+    for line in lines:
+        match = re.search(r"^\d+\.\s*", line)
+        
+        if match:
+            cleaned_line =line[match.end():].strip()
+            li_children = text_to_children(cleaned_line)
+            line_html_nodes.append(HTMLNode(tag="li", children=li_children))
+        
+    return HTMLNode(tag="ol", children=line_html_nodes)
 
         
 
