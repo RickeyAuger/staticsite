@@ -125,7 +125,7 @@ def heading_to_html_node(block):
 
 def code_to_html_node(block):
     if "```" in block:
-        code_text = block.strip("`")[1].strip()
+        code_text = "\n".join(block.split("\n")[1:-1]).strip()
         
         text_node = TextNode(code_text, TextType.TEXT)
     
@@ -140,10 +140,6 @@ def code_to_html_node(block):
    
 
 
-    
-
-
-
 def unordered_list_to_html_node(block):
     lines = block.split("\n")
     line_html_nodes = []
@@ -152,7 +148,7 @@ def unordered_list_to_html_node(block):
         if not line.strip():
             continue
         
-        if line.startswith("* "):
+        if line.startswith("* ") or line.startswith("- "):
             cleaned_line = line[2:].strip()
             li_children = text_to_children(cleaned_line)
             line_html_nodes.append(ParentNode(tag="li", children=li_children))
