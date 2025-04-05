@@ -1,9 +1,15 @@
-from textnode import TextNode, TextType
+from website import *
+
+
+
+
+
 
 def main():
+    copy_static("static", "public")
+    generate_page("content/index.md", "template.html", "public/index.html")
     
-    test = TextNode("This is some anchor text", TextType.LINK, "https://www.boot.dev")
-    print(test)
 
+if __name__ == "__main__":
+    main()
 
-main()

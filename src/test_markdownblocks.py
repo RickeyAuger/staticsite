@@ -1,5 +1,6 @@
 import unittest
 from markdownblocks import markdown_to_blocks
+from main import extract_title
 
 class Test_Markdown_To_Blocks(unittest.TestCase):
     def test_markdown_to_blocks(self):
@@ -68,6 +69,46 @@ class Test_Markdown_To_Blocks(unittest.TestCase):
         More text under another header."""
         self.assertEqual(markdown_to_blocks(md), ["# Header 1", "Some paragraph text.", "## Header 2", "More text under another header."])
 
+    def test_extract_title_markdown(self):
+        md = """# Header 1
+
+        Some paragraph text.
+
+        ## Header 2
+
+        More text under another header."""
+        self.assertEqual(extract_title(md), "Header 1")
+
+    def test_extract_title_extra_spaces(self):
+        md = "#    Title with extra spaces"
+        self.assertEqual(extract_title(md), "Title with extra spaces")
+
+
+    def test_extract_title_no_h1(self):
+        md = """## Header 2
+        
+        This markdown has no H1 header.
+        
+        ### Header 3
+        """
+        with self.assertRaises(Exception):
+            extract_title(md)
+
+    def test_extract_title_empty_header(self):
+        md = """# 
+        
+        Just a hash with no title text.
+        """
+        self.assertEqual(extract_title(md), "")
+
+    def test_extract_title_multiple_h1(self):
+        md = """# First Title
+        
+        Some content.
+        
+        # Second Title
+        """
+        self.assertEqual(extract_title(md), "First Title")
     
 
 
