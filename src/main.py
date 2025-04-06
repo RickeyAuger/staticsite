@@ -1,13 +1,15 @@
 from website import *
-import os
+import sys
 
 
-
-
+if len(sys.argv) > 1 and sys.argv[1]:
+    basepath = sys.argv[1]
+else:
+    basepath = "/"
 
 
 def main():
-    generate_pages_recursive("content", "template.html", "public" )
+    generate_pages_recursive("content", "template.html", "docs", basepath)
 
     
     
