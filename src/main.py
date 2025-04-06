@@ -9,6 +9,7 @@ else:
 
 
 def main():
+    copy_static("static", "docs")
     generate_pages_recursive("content", "template.html", "docs", basepath)
 
     
